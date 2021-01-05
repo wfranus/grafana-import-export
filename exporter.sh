@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+export PATH=.bin:$PATH
 . "$(dirname "$0")/config.sh"
 
 fetch_fields() {
@@ -14,10 +15,18 @@ for row in "${ORGS[@]}" ; do
     mkdir -p "$DIR/datasources"
     mkdir -p "$DIR/alert-notifications"
 
-    for dash in $(fetch_fields $KEY 'search?query=&' 'uri'); do
-        DB=$(echo ${dash}|sed 's,db/,,g').json
-        echo $DB
-        curl -f -k -H "Authorization: Bearer ${KEY}" "${HOST}/api/dashboards/${dash}" | jq 'del(.overwrite,.dashboard.version,.meta.created,.meta.createdBy,.meta.updated,.meta.updatedBy,.meta.expires,.meta.version)' > "$DIR/dashboards/$DB"
+    for folder_id in $(fetch_fields $KEY 'search?query=&type=dash-folder' 'id'); do
+	FOLDER_NAME=$(echo $(fetch_fields $KEY "folders/id/${folder_id}" 'title'))
+	echo '##################################################'
+	echo "Downloading dashboards from folder: ${FOLDER_NAME}"
+        echo '##################################################'
+	mkdir -p "$DIR/dashboards/$FOLDER_NAME"
+	for dash in $(fetch_fields $KEY "search?query=&folderIds=${folder_id}" 'uri'); do
+            DB=$(echo ${dash}|sed 's,db/,,g').json
+            echo $DB
+            curl -f -k -H "Authorization: Bearer ${KEY}" "${HOST}/api/dashboards/${dash}" | jq '.dashboard.id = null | del(.overwrite,.dashboard.version,.meta.created,.meta.createdBy,.meta.updated,.meta.updatedBy,.meta.expires,.meta.version)' > "$DIR/dashboards/$FOLDER_NAME/$DB"
+	done
+
     done
 
     for id in $(fetch_fields $KEY 'datasources' 'id'); do

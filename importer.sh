@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+export PATH=bin:$PATH
 . "$(dirname "$0")/config.sh"
 
 
@@ -59,8 +60,8 @@ fi
 for FILE in "${ARGS[@]}"; do
 
     IFS='/' read -r -a args <<< "$FILE"
-    if [ ${#args[@]} -ne 4 ]; then
-        echo "Wrong param \"${FILE}\". Must be data/{organization}/{type}/{file}"
+    if [ ${#args[@]} -ne 4 ] && [ ${#args[@]} -ne 5 ]; then
+        echo "Wrong param \"${FILE}\". Must be data/{organization}/{type}/{file} in the case of alerts and data sources or data/{organization}/{type}/{folder}/{file} in the case of dashboards."
     fi
 
     KEY=${ORGMAP[${args[1]}]}
