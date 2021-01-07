@@ -21,10 +21,12 @@ for row in "${ORGS[@]}" ; do
 	echo "Downloading dashboards from folder: ${FOLDER_NAME}"
         echo '##################################################'
 	mkdir -p "$DIR/dashboards/$FOLDER_NAME"
-	for dash in $(fetch_fields $KEY "search?query=&folderIds=${folder_id}" 'uri'); do
-            DB=$(echo ${dash}|sed 's,db/,,g').json
+	for dash in $(fetch_fields $KEY "search?query=&folderIds=${folder_id}" ' | {uid, uri} | @text'); do
+	    DB_UID=$(echo $dash | jq -r ".uid")
+	    DB_URI=$(echo $dash | jq -r ".uri")
+            DB=$(echo ${DB_URI}|sed 's,db/,,g').json
             echo $DB
-            curl -f -k -H "Authorization: Bearer ${KEY}" "${HOST}/api/dashboards/${dash}" | jq '.dashboard.id = null | del(.overwrite,.dashboard.version,.meta.created,.meta.createdBy,.meta.updated,.meta.updatedBy,.meta.expires,.meta.version)' > "$DIR/dashboards/$FOLDER_NAME/$DB"
+            curl -f -k -H "Authorization: Bearer ${KEY}" "${HOST}/api/dashboards/uid/${DB_UID}" | jq '.dashboard.id = null | del(.overwrite,.dashboard.version,.meta.created,.meta.createdBy,.meta.updated,.meta.updatedBy,.meta.expires,.meta.version)' > "$DIR/dashboards/$FOLDER_NAME/$DB"
 	done
 
     done
