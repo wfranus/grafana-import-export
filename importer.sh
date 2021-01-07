@@ -41,7 +41,7 @@ import_file() {
 
     if [[ ${CURL_EXIT} = 22 && $TYPE = "datasources" ]]; then
         echo "409 conflict error is normal. Retrying as update."
-        id=$(basename $file .json)
+        id=$(cat $FILE | jq -r ".id")
         curl_wrap "$FILE" "$KEY" "${HOST}/api/$TYPE/$id" PUT
     elif [[ ${CURL_EXIT} = 22 && $TYPE = "alert-notifications" ]]; then
         echo "500 server error is normal. Retrying as update."

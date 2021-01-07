@@ -37,10 +37,12 @@ for row in "${ORGS[@]}"; do
     done
   done
 
-  for id in $(fetch_fields $KEY 'datasources' 'id'); do
-    DS=$(echo $(fetch_fields $KEY "datasources/${id}" 'name') | sed 's/ /-/g').json
+  for ds in $(fetch_fields $KEY 'datasources' ' | {id, name} | @text'); do
+    DS_ID=$(echo $ds | jq -r ".id")
+    DS_NAME=$(echo $ds | jq -r ".name")
+    DS=$(echo "${DS_NAME// /-}").json
     echo $DS
-    curl -f -k -H "Authorization: Bearer ${KEY}" "${HOST}/api/datasources/${id}" | jq '' >"$DIR/datasources/${id}.json"
+    curl -f -k -H "Authorization: Bearer ${KEY}" "${HOST}/api/datasources/${DS_ID}" | jq '' >"$DIR/datasources/${DS}"
   done
 
   for id in $(fetch_fields $KEY 'alert-notifications' 'id'); do
