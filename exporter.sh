@@ -16,7 +16,11 @@ for row in "${ORGS[@]}"; do
   mkdir -p "$DIR/datasources"
   mkdir -p "$DIR/alert-notifications"
 
-  for folder in $(fetch_fields $KEY "search?query=$ONLY_FOLDER&type=dash-folder" '| {id, title} | @text'); do
+  folders=$(fetch_fields $KEY "search?query=$ONLY_FOLDER&type=dash-folder" '| {id, title} | @text')
+  if [[ $folders == "" ]]; then
+    folders=('{"title":"General","id":"0"}')
+  fi
+  for folder in $folders; do
     FOLDER_NAME=$(echo $folder | jq -r ".title")
     if [[ -n $ONLY_FOLDER && $ONLY_FOLDER != "" && $FOLDER_NAME != "$ONLY_FOLDER" ]]; then continue; fi
     FOLDER_ID=$(echo $folder | jq -r ".id")
