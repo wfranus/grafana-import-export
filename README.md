@@ -10,8 +10,10 @@ Example was taken from https://gist.github.com/crisidev/bd52bdcc7f029be2f295
 **[JQ](https://stedolan.github.io/jq/)** - to process .json
 
 ## Configuration
-Replace **HOST** and **FILE_DIR** variables at `config.sh` with your own.
-Also fill **ORGS** array with pairs ORGANIZATION:API_KEY.
+* Replace **HOST** and **FILE_DIR** variables at `config.sh` with your own.
+* Also fill **ORGS** array with pairs ORGANIZATION:API_KEY.
+* To export dashboards from single folder only, set folder name in ONLY_FOLDER.
+* To replace folder ids in exported dashboards, set new folder id value in NEW_FOLDERID.
 
 ## exporter
 Run:

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+export PATH=bin:$PATH
 . "$(dirname "$0")/config.sh"
 
 
@@ -40,7 +41,7 @@ import_file() {
 
     if [[ ${CURL_EXIT} = 22 && $TYPE = "datasources" ]]; then
         echo "409 conflict error is normal. Retrying as update."
-        id=$(basename $file .json)
+        id=$(cat $FILE | jq -r ".id")
         curl_wrap "$FILE" "$KEY" "${HOST}/api/$TYPE/$id" PUT
     elif [[ ${CURL_EXIT} = 22 && $TYPE = "alert-notifications" ]]; then
         echo "500 server error is normal. Retrying as update."
@@ -59,8 +60,8 @@ fi
 for FILE in "${ARGS[@]}"; do
 
     IFS='/' read -r -a args <<< "$FILE"
-    if [ ${#args[@]} -ne 4 ]; then
-        echo "Wrong param \"${FILE}\". Must be data/{organization}/{type}/{file}"
+    if [ ${#args[@]} -ne 4 ] && [ ${#args[@]} -ne 5 ]; then
+        echo "Wrong param \"${FILE}\". Must be data/{organization}/{type}/{file} in the case of alerts and data sources or data/{organization}/{type}/{folder}/{file} in the case of dashboards."
     fi
 
     KEY=${ORGMAP[${args[1]}]}
